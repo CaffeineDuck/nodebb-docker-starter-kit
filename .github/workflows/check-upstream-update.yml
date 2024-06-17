@@ -1,0 +1,46 @@
+name: Sync release from upstream
+
+on:
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Get upstream latest tag
+        id: get-upstream-latest-tag
+        uses: pozetroninc/github-action-get-latest-release@master
+        with:
+          repository: NodeBB/NodeBB
+          token: ${{ secrets.GITHUB_TOKEN }}
+          excludes: prerelease, draft
+
+      - name: Get local latest tag
+        id: get-local-latest-tag
+        uses: pozetroninc/github-action-get-latest-release@master
+        with:
+          repository: ${{ github.repository }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          excludes: prerelease, draft
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.RELEASE_VER }}
+          release_name: Release ${{ env.RELEASE_VER }}
+          body: New release found in upstream.
+          draft: false
+          prerelease: false
+        if: |
+          steps.get-upstream-latest-tag.outputs.release != steps.get-local-latest-tag.outputs.release
