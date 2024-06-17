@@ -25,11 +25,11 @@ jobs:
 
       - name: Get local latest tag
         id: get-local-latest-tag
-        uses: pozetroninc/github-action-get-latest-release@master
+        uses: cardinalby/git-get-release-action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          repository: ${{ github.repository }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-          excludes: prerelease, draft
+          latest: true
 
       - name: Create Release
         id: create_release
@@ -43,4 +43,4 @@ jobs:
           draft: false
           prerelease: false
         if: |
-          steps.get-upstream-latest-tag.outputs.release != steps.get-local-latest-tag.outputs.release
+          steps.get-upstream-latest-tag.outputs.release != steps.get-local-latest-tag.outputs.tag_name
