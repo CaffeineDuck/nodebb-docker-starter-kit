@@ -23,19 +23,10 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           excludes: prerelease, draft
 
-      - name: Get local latest tag
-        id: get-local-latest-tag
-        uses: pozetroninc/github-action-get-latest-release@master
-        with:
-          repository: ${{ github.repository }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-          excludes: prerelease, draft
-
-      # Doing this so that workflow won't fail when there are
-      # no releases in the local repository.
       - name: Set local tag env var
+        id: set-local-latest-tag
         run: |
-          echo "LOCAL_TAG_NAME=${{ steps.get-local-latest-tag.outputs.release }}" >> $GITHUB_ENV
+          echo "LATEST_TAG=$(git describe --tags $(git rev-list --tags --max-count=1))" >> $GITHUB_ENV
 
       - name: Create Release
         id: create_release
@@ -43,8 +34,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ env.RELEASE_VER }}
-          release_name: Release ${{ env.RELEASE_VER }}
+          tag_name: ${{ steps.get-upstream-latest-tag.outputs.release }}
+          release_name: Release ${{ steps.get-upstream-latest-tag.outputs.release }}
           body: New release found in upstream.
           draft: false
           prerelease: false
