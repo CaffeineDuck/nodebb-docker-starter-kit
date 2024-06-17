@@ -35,7 +35,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ steps.get-upstream-latest-tag.outputs.release }}
-          release_name: Release ${{ steps.get-upstream-latest-tag.outputs.release }}
+          release_name: NodeBB Release ${{ steps.get-upstream-latest-tag.outputs.release }}
           body: New release found in upstream.
           draft: false
           prerelease: false
