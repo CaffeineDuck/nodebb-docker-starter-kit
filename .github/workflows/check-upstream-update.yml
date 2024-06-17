@@ -25,11 +25,17 @@ jobs:
 
       - name: Get local latest tag
         id: get-local-latest-tag
-        uses: cardinalby/git-get-release-action@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: pozetroninc/github-action-get-latest-release@master
         with:
-          latest: true
+          repository: ${{ github.repository }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          excludes: prerelease, draft
+
+      # Doing this so that workflow won't fail when there are
+      # no releases in the local repository.
+      - name: Set local tag env var
+        run: |
+          echo "LOCAL_TAG_NAME=${{ steps.get-local-latest-tag.outputs.release }}" >> $GITHUB_ENV
 
       - name: Create Release
         id: create_release
@@ -43,4 +49,4 @@ jobs:
           draft: false
           prerelease: false
         if: |
-          steps.get-upstream-latest-tag.outputs.release != steps.get-local-latest-tag.outputs.tag_name
+          steps.get-upstream-latest-tag.outputs.release != env.LOCAL_TAG_NAME
