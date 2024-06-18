@@ -1,0 +1,4 @@
+export MONGO__USERNAME=
+export MONGO__PASSWORD=
+export MONGO__DATABASE=
+
